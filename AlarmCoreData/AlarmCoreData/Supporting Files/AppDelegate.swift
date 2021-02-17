@@ -10,11 +10,21 @@ import CoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { (authorized, error) in
+            
+            if let error = error {
+                print("There was an error: \(error.localizedDescription)")
+            }
+            
+            if authorized {
+                print("✅ Notifications Authorized")
+                UNUserNotificationCenter.current().delegate = self
+            } else {
+                print("❌ Notifications Denied")
+            }
+        }
         return true
     }
 
@@ -79,3 +89,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        print("Notification will present...")
+        NotificationCenter.default.post(name: Notification.Name(rawValue: "alarmReminderNotification") , object: nil)
+        completionHandler([.sound,.banner])
+    }
+}
